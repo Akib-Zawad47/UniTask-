@@ -81,6 +81,7 @@ The database consists of the following key entities:
 ## 📄 Project Structure
 ## 📂 Project Files
 
+```text
 /unitask
 │
 ├── SQL Code.txt           # Contains all SQL commands to create the database
