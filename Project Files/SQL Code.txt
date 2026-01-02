@@ -1,0 +1,99 @@
+
+CREATE TABLE `admin` (
+  `a_id` int(11) NOT NULL AUTO_INCREMENT,
+  `password` varchar(60) NOT NULL,
+  PRIMARY KEY (`a_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Insert Data
+INSERT INTO `admin` (`a_id`, `password`) VALUES
+(1001, 'admin123');
+
+
+
+-- --------------------------------------------------------
+
+CREATE TABLE `teacher` (
+  `t_id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `password` varchar(60) NOT NULL,
+  `t_contact` varchar(20) NOT NULL,
+  `g_suit` varchar(50) NOT NULL,
+  `department` varchar(20) NOT NULL,
+  `a_id` int(11) DEFAULT NULL,
+  `account_status` enum('pending','active','rejected') NOT NULL DEFAULT 'pending',
+  PRIMARY KEY (`t_id`),
+  UNIQUE KEY `g_suit` (`g_suit`),
+  FOREIGN KEY (`a_id`) REFERENCES `admin` (`a_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- --------------------------------------------------------
+
+CREATE TABLE `course` (
+  `c_id` varchar(20) NOT NULL,
+  `section` varchar(10) NOT NULL,
+  `c_name` varchar(50) NOT NULL,
+  `t_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`c_id`, `section`),
+  FOREIGN KEY (`t_id`) REFERENCES `teacher` (`t_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- --------------------------------------------------------
+
+CREATE TABLE `student` (
+  `s_id` int(11) NOT NULL AUTO_INCREMENT,
+  `password` varchar(60) NOT NULL,
+  `g_suit` varchar(50) NOT NULL,
+  `s_contact` varchar(20) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `department` varchar(20) NOT NULL,
+  `a_id` int(11) DEFAULT NULL,
+  `account_status` enum('pending','active','rejected') NOT NULL DEFAULT 'pending',
+  PRIMARY KEY (`s_id`),
+  UNIQUE KEY `g_suit` (`g_suit`),
+  FOREIGN KEY (`a_id`) REFERENCES `admin` (`a_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- --------------------------------------------------------
+
+CREATE TABLE `resource` (
+  `r_id` varchar(100) NOT NULL,
+  `s_id` int(11) NOT NULL,
+  `description` varchar(100) NOT NULL,
+  `a_id` int(11) DEFAULT NULL,
+  `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+  PRIMARY KEY (`r_id`),
+  FOREIGN KEY (`s_id`) REFERENCES `student` (`s_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`a_id`) REFERENCES `admin` (`a_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+CREATE TABLE `student_enrolls` (
+  `s_id` int(11) NOT NULL,
+  `c_id` varchar(20) NOT NULL,
+  `section` varchar(10) NOT NULL,
+  PRIMARY KEY (`s_id`, `c_id`, `section`),
+  FOREIGN KEY (`s_id`) REFERENCES `student` (`s_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`c_id`, `section`) REFERENCES `course` (`c_id`, `section`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+CREATE TABLE `task` (
+  `task_id` varchar(20) NOT NULL,
+  `t_id` int(11) NOT NULL,
+  `c_id` varchar(20) NOT NULL,
+  `section` varchar(10) NOT NULL,
+  `due_date` date NOT NULL,
+  `type` enum('assignment','quiz','lab','project','viva','home task') NOT NULL,
+  `description` text NOT NULL,
+  `task_number` int(11) NOT NULL,
+  PRIMARY KEY (`task_id`),
+  FOREIGN KEY (`t_id`) REFERENCES `teacher` (`t_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`c_id`, `section`) REFERENCES `course` (`c_id`, `section`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
